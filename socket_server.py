@@ -130,3 +130,11 @@ while True:
                     # We are reusing here message header sent by sender, and saved username header send by user when he connected
                     client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
 
+    # It's not really necessary to have this, but will handle some socket exceptions just in case
+    for notified_socket in exception_sockets:
+
+        # Remove from list for socket.socket()
+        sockets_list.remove(notified_socket)
+
+        # Remove from our list of users
+        del clients[notified_socket]
