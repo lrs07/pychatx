@@ -8,8 +8,36 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 # to use buttons:
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from kivy.uix.scrollview import ScrollView
 
 kivy.require("1.10.1")
+
+
+class ScrollableLabel(ScrollView):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.layout = GridLayout(cols=1, size_hint_y=None)
+        self.add_widget(self.layout)
+        self.chat_history = Label(size_hint_y=None, markup=True)
+        self.scroll_to_point = Label()
+
+        self.layout.add_widget(self.chat_history)
+        self.layout.add_widget(self.scroll_to_point)
+
+    def update_chat_history(self, message):
+
+
+        self.chat_history.text += '\n' + message
+
+        self.layout.height = self.chat_history.texture_size[1] + 15
+        self.chat_history.height = self.chat_history.texture_size[1]
+        self.chat_history.text_size = (self.chat_history.width * 0.98, None)
+
+        self.scroll_to(self.scroll_to_point)
+
+
 class ChatPage(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
