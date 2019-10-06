@@ -38,3 +38,25 @@ def send(message):
 
 def start_listening(incoming_message_callback, error_callback):
     Thread(target=listen, args=(incoming_message_callback, error_callback), daemon=True).start()
+
+def listen(incoming_message_callback, error_callback):
+    while True:
+
+        try:
+            while True:
+                username_header = client_socket.recv(HEADER_LENGTH)
+                if not len(username_header):
+                    error_callback('Connection closed by the server')
+
+                username_length = int(username_header.decode('utf-8').strip())
+                username = client_socket.recv(username_length).decode('utf-8')
+                message_header = client_socket.recv(HEADER_LENGTH)
+                message_length = int(message_header.decode('utf-8').strip())
+                message = client_socket.recv(message_length).decode('utf-8')
+
+                # Print the message
+                incoming_message_callback(username, message)
+
+        except Exception as e:
+            # Any other exception - something happened, exit
+            error_callback('Reading error: {}'.format(str(e)))
