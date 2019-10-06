@@ -7,8 +7,15 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
 # to use buttons:
 from kivy.uix.button import Button
+from kivy.clock import Clock
 
 kivy.require("1.10.1")
+class ChatPage(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.cols = 1
+        self.add_widget(Label(text='Fancy stuff here to come!!!', font_size=30))
+
 class InfoPage(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -83,6 +90,18 @@ class ConnectPage(GridLayout):
         info = f"Joining {ip}:{port} as {username}"
         chat_app.info_page.update_info(info)
         chat_app.screen_manager.current = 'Info'
+        Clock.schedule_once(self.connect, 1)
+    def connect(self, _):
+
+        # Get information for sockets client
+        port = int(self.port.text)
+        ip = self.ip.text
+        username = self.username.text
+
+        if not socket_client.connect(ip, port, username, show_error):
+            return
+        chat_app.create_chat_page()
+        chat_app.screen_manager.current = 'Chat'
 
 class pctxApp(App):
     # This is your "initialize" for the root wiget
@@ -106,6 +125,16 @@ class pctxApp(App):
         self.screen_manager.add_widget(screen)
 
         return self.screen_manager
+    def create_chat_page(self):
+        self.chat_page = ChatPage()
+        screen = Screen(name='Chat')
+        screen.add_widget(self.chat_page)
+        self.screen_manager.add_widget(screen)
+
+def show_error(message):
+    chat_app.info_page.update_info(message)
+    chat_app.screen_manager.current = 'Info'
+    Clock.schedule_once(sys.exit, 10)
 
 # Run the app.
 if __name__ == "__main__":
